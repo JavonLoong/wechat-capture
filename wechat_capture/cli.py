@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-wechat_capture.cli — 统一命令行入口
+wechat_capture.cli — Unified command-line entry point
 
-用法:
-  wechat-capture screenshot <联系人名>  [--output-dir ./output]
-  wechat-capture database   <联系人名>  --db-dir <解密目录> [--output-dir ./output]
+Usage:
+  wechat-capture screenshot <contact>  [--output-dir ./output]
+  wechat-capture database   <contact>  --db-dir <decrypted_dir> [--output-dir ./output]
 """
 import argparse
 import sys
@@ -17,7 +17,7 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="mode", help="导出模式")
 
-    # ── 截图模式 ──
+    # ── Screenshot mode ──
     sp_ss = subparsers.add_parser(
         "screenshot",
         aliases=["ss"],
@@ -27,7 +27,7 @@ def main():
     sp_ss.add_argument("--output-dir", "-o", default="./output", help="输出目录（默认 ./output）")
     sp_ss.add_argument("--max-scroll", type=int, default=150, help="向上滚动最大批次（默认 150）")
 
-    # ── 数据库模式 ──
+    # ── Database mode ──
     sp_db = subparsers.add_parser(
         "database",
         aliases=["db"],
@@ -36,6 +36,14 @@ def main():
     sp_db.add_argument("contact", help="联系人名称/备注名")
     sp_db.add_argument("--db-dir", "-d", required=True, help="解密后的数据目录路径")
     sp_db.add_argument("--output-dir", "-o", default="./output", help="输出目录（默认 ./output）")
+    sp_db.add_argument(
+        "--config", "-c", default=None,
+        help="wechat-decrypt 的 config.json 路径（用于提取 self_wxid 以正确识别消息发送方）",
+    )
+    sp_db.add_argument(
+        "--self-wxid", default=None,
+        help="直接指定自己的 wxid（如 wxid_abc123），优先级高于 --config",
+    )
 
     args = parser.parse_args()
 
@@ -57,6 +65,8 @@ def main():
             contact_name=args.contact,
             decrypted_dir=args.db_dir,
             output_dir=args.output_dir,
+            config_file=args.config,
+            self_wxid=args.self_wxid,
         )
 
 
